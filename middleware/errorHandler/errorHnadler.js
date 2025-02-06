@@ -1,5 +1,7 @@
+const createError = require("http-errors");
+
 const notFoundRouter = (req, res, next) => {
-  const errors = new Error("Not found anything");
+  const errors = createError(404, "Somthing will be wrong");
   next(errors);
 };
 const customErrorHandler = (err, req, res, next) => {
