@@ -25,15 +25,22 @@ const getUsersById = async (req, res, next) => {
   }
 };
 
-// Create new user
 const postUsers = async (req, res, next) => {
+  let newUser;
+
+  if (req.files && req.files.length > 0) {
+    newUser = new Users({
+      ...req.body,
+      avatar: req.files[0].filename,
+    });
+  } else {
+    newUser = new Users(req.body);
+  }
   try {
-    const data = req.body;
-    console.log("body data", data);
-    const newUser = new Users(data);
-    await newUser.save();
-    console.log(newUser, "saved data");
-    res.json(newUser);
+    const result = await newUser.save();
+
+    // Send a success response
+    res.status(200).json({ result, success: true, message: "User created successfully!" });
   } catch (err) {
     next(err);
   }

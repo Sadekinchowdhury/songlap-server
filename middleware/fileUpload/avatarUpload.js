@@ -1,3 +1,4 @@
+const createHttpError = require("http-errors");
 const uploader = require("../../utilities/avatarUploader");
 
 const avatarUpload = (req, res, next) => {
@@ -13,13 +14,7 @@ const avatarUpload = (req, res, next) => {
       console.log("avatar successfully added");
       next();
     } else {
-      return res.status(400).json({
-        errors: {
-          avatar: {
-            msg: err.message,
-          },
-        },
-      });
+      createHttpError(400, "file upload failed");
     }
   });
 };

@@ -1,17 +1,22 @@
 const express = require("express");
+
 const app = express();
 const dotenv = require("dotenv");
 const connectDB = require("./connectDB/connectDb");
 const { notFoundRouter, customErrorHandler } = require("./middleware/errorHandler/errorHnadler");
 const usersRoute = require("./router/users/usersRoute");
-const uploader = require("./utilities/avatarUploader");
+const cors = require("cors");
+
+const bodyParser = require("body-parser");
 
 dotenv.config();
 const port = process.env.PORT || 3000;
 
+app.use(cors());
+
 //parse json data
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // users
 app.use("/users", usersRoute);

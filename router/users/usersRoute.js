@@ -1,5 +1,5 @@
 const express = require("express");
-const { getUsers, getUsersById, postUsers, deleteUser, updateUser } = require("../../routeControler/usersControler/usersControler");
+const { getUsers, getUsersById, deleteUser, updateUser, postUsers } = require("../../routeControler/usersControler/usersControler");
 const avatarUpload = require("../../middleware/fileUpload/avatarUpload");
 
 const usersRoute = express.Router();
