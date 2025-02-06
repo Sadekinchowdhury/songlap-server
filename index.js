@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const connectDB = require("./connectDB/connectDb");
 const { notFoundRouter, customErrorHandler } = require("./middleware/errorHandler/errorHnadler");
 const usersRoute = require("./router/users/usersRoute");
+const uploader = require("./utilities/avatarUploader");
+
 dotenv.config();
 const port = process.env.PORT || 3000;
 
@@ -13,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // users
 app.use("/users", usersRoute);
+
 // login
 
 // inbox
