@@ -32,6 +32,7 @@ const uploader = ({ uploadFilepath, uploadType, uploadSize, uploadingError }) =>
     },
     limits: { fileSize: uploadSize },
   });
+  console.log(upload);
   return upload;
 };
 module.exports = uploader;

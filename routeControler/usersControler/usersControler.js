@@ -1,5 +1,7 @@
 const createHttpError = require("http-errors");
 const Users = require("../../models/Users");
+const fs = require("fs");
+const path = require("path");
 
 // Get all users
 const getUsers = async (req, res, next) => {
@@ -28,6 +30,8 @@ const getUsersById = async (req, res, next) => {
 const postUsers = async (req, res, next) => {
   let newUser;
 
+  console.log(req.files[0], "this is req.bod from post user");
+
   if (req.files && req.files.length > 0) {
     newUser = new Users({
       ...req.body,
@@ -42,6 +46,7 @@ const postUsers = async (req, res, next) => {
     // Send a success response
     res.status(200).json({ result, success: true, message: "User created successfully!" });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
@@ -73,7 +78,24 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const userid = req.params.id;
+
+    // user find by id for deleting avatar on file system
+    const findAvatar = await Users.findById({ _id: userid });
+
     const user = await Users.deleteOne({ _id: userid });
+    const rootDir = path.resolve(__dirname, "../../");
+
+    let url = path.join(rootDir, `/public/uploads/avatar/${findAvatar.avatar}`);
+
+    fs.unlink(url, (err) => {
+      if (err) {
+        console.error("Error deleting file:", err);
+      } else {
+        console.log("File deleted successfully");
+      }
+    });
+
+    console.log("File deleted successfully");
 
     if (user.deletedCount === 0) {
       return next(createHttpError(404, "User not found"));
