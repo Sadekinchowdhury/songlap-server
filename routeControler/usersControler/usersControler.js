@@ -2,6 +2,7 @@ const createHttpError = require("http-errors");
 const Users = require("../../models/Users");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 
 // Get all users
 const getUsers = async (req, res, next) => {
@@ -29,24 +30,25 @@ const getUsersById = async (req, res, next) => {
 
 const postUsers = async (req, res, next) => {
   let newUser;
-
-  console.log(req.files[0], "this is req.bod from post user");
+  const password = await bcrypt.hash(req.body.password, 10);
 
   if (req.files && req.files.length > 0) {
     newUser = new Users({
       ...req.body,
       avatar: req.files[0].filename,
+      password: password,
     });
   } else {
-    newUser = new Users(req.body);
+    newUser = new Users({
+      ...req.body,
+      password: password,
+    });
   }
   try {
     const result = await newUser.save();
-
     // Send a success response
     res.status(200).json({ result, success: true, message: "User created successfully!" });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };
@@ -95,8 +97,6 @@ const deleteUser = async (req, res, next) => {
       }
     });
 
-    console.log("File deleted successfully");
-
     if (user.deletedCount === 0) {
       return next(createHttpError(404, "User not found"));
     }
@@ -106,5 +106,22 @@ const deleteUser = async (req, res, next) => {
     next(err);
   }
 };
+const deleteAll = async (req, res, next) => {
+  try {
+    console.log("delete start");
+    const result = await Users.deleteMany({});
+    console.log("delete", result);
+    res.status(200).json({
+      success: true,
+      message: "all users deleted",
+      result,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "User not delete",
+    });
+  }
+};
 
-module.exports = { getUsers, postUsers, getUsersById, updateUser, deleteUser };
+module.exports = { getUsers, postUsers, getUsersById, updateUser, deleteUser, deleteAll };
