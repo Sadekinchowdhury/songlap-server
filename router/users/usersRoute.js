@@ -1,11 +1,20 @@
 const express = require("express");
-const { getUsers, getUsersById, deleteUser, updateUser, postUsers, deleteAll } = require("../../routeControler/usersControler/usersControler");
+const {
+  getUsersById,
+  deleteUser,
+  updateUser,
+  postUsers,
+  deleteAll,
+  getAllUsers,
+  getUser,
+} = require("../../routeControler/usersControler/usersControler");
 const avatarUpload = require("../../middleware/fileUpload/avatarUpload");
 const checklogin = require("../../middleware/auth/checkLogin");
 
 const usersRoute = express.Router();
 
-usersRoute.get("/", checklogin, getUsers);
+usersRoute.get("/user", checklogin, getUser);
+usersRoute.get("/", checklogin, getAllUsers);
 usersRoute.get("/:id", checklogin, getUsersById);
 usersRoute.post("/", avatarUpload, postUsers);
 usersRoute.put("/:id", checklogin, updateUser);

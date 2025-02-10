@@ -28,7 +28,7 @@ app.use(cookieParser(process.env.COOkEI_SECRET));
 app.use("/users", usersRoute);
 
 // login
-app.use("/login", loginRoute);
+app.use("/auth", loginRoute);
 
 // inbox
 

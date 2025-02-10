@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 
 const loginControler = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { email_or_phone, password } = req.body;
 
     // Find user by email or mobile
@@ -70,5 +69,35 @@ const loginControler = async (req, res, next) => {
     });
   }
 };
+const logOutController = async (req, res, next) => {
+  try {
+    const decoded = req.user;
+    console.log("logout hit", decoded);
+    if (!decoded) {
+      // User is not authenticated, so return an error
+      return res.status(401).json({
+        message: "User not authenticated",
+      });
+    }
 
-module.exports = loginControler;
+    // Clear the authentication cookie
+    res.clearCookie(process.env.COOKIE_NAME, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      path: "/",
+    });
+
+    res.status(200).json({
+      success: "true",
+      message: "Successfully logged out and cleared cookies",
+    });
+  } catch (err) {
+    console.error("Logout error: ", err);
+    res.status(500).json({
+      message: "Something went wrong during logout",
+    });
+  }
+};
+
+module.exports = { loginControler, logOutController };

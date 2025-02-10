@@ -5,7 +5,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 
 // Get all users
-const getUsers = async (req, res, next) => {
+const getAllUsers = async (req, res, next) => {
   try {
     const findUser = await Users.find({});
     res.json(findUser);
@@ -14,7 +14,17 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-// Get user by ID
+const getUser = async (req, res, next) => {
+  try {
+    if (req.user) {
+      res.status(200).json({
+        user: req.user,
+      });
+    }
+  } catch (err) {
+    throw createHttpError(err);
+  }
+};
 const getUsersById = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -124,4 +134,4 @@ const deleteAll = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, postUsers, getUsersById, updateUser, deleteUser, deleteAll };
+module.exports = { getUser, getAllUsers, postUsers, getUsersById, updateUser, deleteUser, deleteAll };
