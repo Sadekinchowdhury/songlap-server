@@ -43,7 +43,6 @@ const addConversation = async (req, res, next) => {
       });
 
       const result = await newConversation.save();
-      console.log("conversation added:- ", result);
 
       res.status(201).json({
          success: true,
