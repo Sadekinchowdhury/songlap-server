@@ -7,16 +7,17 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const loginRoute = require("./router/loginRoute/loginRoute");
 const cookieParser = require("cookie-parser");
+const inboxRoute = require("./router/inboxRoute/inboxRoute");
 
 require("dotenv").config();
 
 const port = process.env.PORT || 3000;
 
 app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
+   cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+   })
 );
 
 //parse json data
@@ -31,6 +32,7 @@ app.use("/users", usersRoute);
 app.use("/auth", loginRoute);
 
 // inbox
+app.use("/inbox", inboxRoute);
 
 // connect to Mongodb database
 connectDB();
@@ -43,5 +45,5 @@ app.use(customErrorHandler);
 
 // listen to the server port on 3000
 app.listen(port, () => {
-  console.log("app running on port", port);
+   console.log("app running on port", port);
 });
