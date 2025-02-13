@@ -8,11 +8,10 @@ const addConversation = async (req, res, next) => {
          return res.status(401).json({ message: "Unauthorized access" });
       }
 
-      if (!participant_id || !name) {
+      if (!participant_id) {
          return res.status(400).json({ message: "Participant ID and name are required" });
       }
-
-      // 🔍 Check if a conversation already exists between the two users
+      // Check if the conversation already exists
       const existingConversation = await Conversation.findOne({
          $or: [
             { "creator.id": req.user.userid, "participant.id": participant_id },
@@ -21,13 +20,13 @@ const addConversation = async (req, res, next) => {
       });
 
       if (existingConversation) {
+         console.log("exist");
          return res.status(200).json({
             success: true,
             message: "Conversation already exists",
             data: existingConversation,
          });
       }
-
       // Create a new conversation if not exists
       const newConversation = new Conversation({
          creator: {

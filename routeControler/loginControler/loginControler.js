@@ -93,7 +93,6 @@ const logOutController = async (req, res, next) => {
          message: "Successfully logged out and cleared cookies",
       });
    } catch (err) {
-      console.error("Logout error: ", err);
       res.status(500).json({
          message: "Something went wrong during logout",
       });

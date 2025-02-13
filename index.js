@@ -20,6 +20,10 @@ app.use(
    })
 );
 
+// serve static file
+
+app.use("/uploads", express.static("public/uploads"));
+
 //parse json data
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));

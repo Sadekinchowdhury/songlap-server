@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const { json } = require("body-parser");
+const { default: mongoose } = require("mongoose");
 
 // Get all users
 const getAllUsers = async (req, res, next) => {
@@ -32,11 +33,16 @@ const searchUser = async (req, res, next) => {
       let { email_or_phone } = req.body;
       email_or_phone = email_or_phone.trim().toLowerCase();
 
-      let user = await Users.find({ $or: [{ email: email_or_phone }, { mobile: email_or_phone }, { name: email_or_phone }] });
-      res.status(200).json({
-         data: user,
+      let user = await Users.find({
+         $or: [{ email: email_or_phone }, { mobile: email_or_phone }, { name: email_or_phone }],
       });
+      if (user) {
+         res.status(200).json({
+            data: user,
+         });
+      }
    } catch (err) {
+      console.log(err);
       res.status(404).json({
          message: err,
       });
@@ -136,9 +142,7 @@ const deleteUser = async (req, res, next) => {
 };
 const deleteAll = async (req, res, next) => {
    try {
-      console.log("delete start");
       const result = await Users.deleteMany({});
-      console.log("delete", result);
       res.status(200).json({
          success: true,
          message: "all users deleted",

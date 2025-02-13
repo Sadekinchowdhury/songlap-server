@@ -3,7 +3,6 @@ const Conversation = require("../../models/Conversation");
 const getConversation = async (req, res, next) => {
    try {
       if (req.user && req.user.userid) {
-         // Find conversations where the user is either the creator or participant
          const userConversations = await Conversation.find({
             $or: [{ "creator.id": req.user.userid }, { "participant.id": req.user.userid }],
          });
