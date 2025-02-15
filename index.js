@@ -8,10 +8,14 @@ const bodyParser = require("body-parser");
 const loginRoute = require("./router/loginRoute/loginRoute");
 const cookieParser = require("cookie-parser");
 const inboxRoute = require("./router/inboxRoute/inboxRoute");
+const { createServer } = require("http");
+const socketConnectionHandler = require("./socket/socket");
 
 require("dotenv").config();
 
-const port = process.env.PORT || 3000;
+const httpServer = createServer(app);
+
+const io = socketConnectionHandler(httpServer);
 
 app.use(
    cors({
@@ -20,7 +24,10 @@ app.use(
    })
 );
 
-// serve static file
+app.use((req, res, next) => {
+   req.io = io;
+   next();
+});
 
 app.use("/uploads", express.static("public/uploads"));
 
@@ -47,7 +54,10 @@ app.use(notFoundRouter);
 // custom error handler
 app.use(customErrorHandler);
 
-// listen to the server port on 3000
-app.listen(port, () => {
-   console.log("app running on port", port);
+// Listen to HTTP server
+const port = process.env.PORT || 3000;
+httpServer.listen(port, () => {
+   console.log(`Server running on port ${port}`);
 });
+
+global.io = io;

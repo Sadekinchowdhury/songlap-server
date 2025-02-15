@@ -3,8 +3,6 @@ const Users = require("../../models/Users");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcryptjs");
-const { json } = require("body-parser");
-const { default: mongoose } = require("mongoose");
 
 // Get all users
 const getAllUsers = async (req, res, next) => {
@@ -16,6 +14,7 @@ const getAllUsers = async (req, res, next) => {
    }
 };
 
+// find user for login information
 const getUser = async (req, res, next) => {
    try {
       if (req.user) {
@@ -28,6 +27,7 @@ const getUser = async (req, res, next) => {
    }
 };
 
+// search user for conversation
 const searchUser = async (req, res, next) => {
    try {
       let { email_or_phone } = req.body;
@@ -49,6 +49,7 @@ const searchUser = async (req, res, next) => {
    }
 };
 
+// find user by id
 const getUsersById = async (req, res, next) => {
    try {
       const id = req.params.id;
@@ -62,6 +63,7 @@ const getUsersById = async (req, res, next) => {
    }
 };
 
+// User Registation
 const postUsers = async (req, res, next) => {
    let newUser;
    const password = await bcrypt.hash(req.body.password, 10);
@@ -140,6 +142,8 @@ const deleteUser = async (req, res, next) => {
       next(err);
    }
 };
+
+// Delete all users
 const deleteAll = async (req, res, next) => {
    try {
       const result = await Users.deleteMany({});

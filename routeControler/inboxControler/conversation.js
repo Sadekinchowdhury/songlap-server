@@ -1,5 +1,6 @@
 const Conversation = require("../../models/Conversation");
 
+// Get conversation
 const getConversation = async (req, res, next) => {
    try {
       if (req.user && req.user.userid) {

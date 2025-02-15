@@ -1,5 +1,6 @@
 const Conversation = require("../../models/Conversation");
 
+// Add user conversation
 const addConversation = async (req, res, next) => {
    try {
       const { participant_id, name, avatar } = req.body;
@@ -20,7 +21,6 @@ const addConversation = async (req, res, next) => {
       });
 
       if (existingConversation) {
-         console.log("exist");
          return res.status(200).json({
             success: true,
             message: "Conversation already exists",

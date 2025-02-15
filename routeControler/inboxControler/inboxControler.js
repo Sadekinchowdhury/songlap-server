@@ -2,13 +2,13 @@ const Conversation = require("../../models/Conversation");
 const Message = require("../../models/Message");
 const path = require("path");
 
+// Send Message
 const sendMessage = async (req, res, next) => {
    try {
       let newMessage;
       const { text, conversation_id, sender, receiver } = req.body;
 
       if (req.files && req.files.length > 0) {
-         console.log(`/uploads/avatar/${req.files[0].filename}`);
          newMessage = new Message({
             ...req.body,
             attachment: path.join("/uploads/avatar", req.files[0].filename),
@@ -28,22 +28,24 @@ const sendMessage = async (req, res, next) => {
       }
 
       await newMessage.save();
-      console.log(result);
-      res.status(200).json({ data: result });
+      req.io.emit("message", newMessage);
+      res.status(200).json({ data: newMessage });
    } catch (err) {
       res.status(500).json({
          message: err,
       });
    }
 };
+
+// Get Message
 const getMessage = async (req, res, next) => {
    try {
       const id = req.params.id;
-      // Correct: Pass id directly
       const message = await Message.find({ conversation_id: id });
       if (!message) {
          return res.status(404).json({ message: "Message not found" });
       }
+
       res.status(200).json({ data: message });
    } catch (err) {
       console.error("Error fetching message:", err);
@@ -51,11 +53,10 @@ const getMessage = async (req, res, next) => {
    }
 };
 
+// Find user conversation by id
 const findConverSation = async (req, res, next) => {
    try {
       const id = req.params.id;
-
-      // Fetch conversation by ID
       const singleConversation = await Conversation.findById(id);
 
       if (!singleConversation) {
@@ -68,12 +69,4 @@ const findConverSation = async (req, res, next) => {
    }
 };
 
-// const getMessage = async (req, res, next) => {
-//    try {
-//    } catch (err) {
-//       res.status.json({
-//          message: err,
-//       });
-//    }
-// };
 module.exports = { sendMessage, getMessage, findConverSation };
