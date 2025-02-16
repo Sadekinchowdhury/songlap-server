@@ -10,9 +10,7 @@ const socketConnectionHandler = (httpServer) => {
    });
 
    io.on("connection", (socket) => {
-      socket.on("message", (msg) => {
-         console.log(msg, "messge_________________");
-      });
+      console.log("socket is connected now_____________________>>>>>>>>>>>");
 
       socket.on("disconnect", () => {
          console.log("socket disconnected");

@@ -1,21 +1,34 @@
 const Conversation = require("../../models/Conversation");
 
-// Get conversation
 const getConversation = async (req, res, next) => {
    try {
       if (req.user && req.user.userid) {
+         const userid = req.user.userid;
+
+         // Find conversations where user is either creator or participant
          const userConversations = await Conversation.find({
-            $or: [{ "creator.id": req.user.userid }, { "participant.id": req.user.userid }],
+            $or: [{ "creator.id": userid }, { "participant.id": userid }],
          });
 
-         if (userConversations.length === 0) {
-            return res.status(404).json({
-               message: "No conversations found for this user",
-            });
-         }
+         // Map conversations to show only the opposite party
+         const conversations = userConversations.map((conversation) => {
+            if (conversation.creator.id.toString() === userid) {
+               return {
+                  id: conversation._id,
+                  user: conversation.participant,
+                  last_updated: conversation.last_updated,
+               };
+            } else {
+               return {
+                  id: conversation._id,
+                  user: conversation.creator,
+                  last_updated: conversation.last_updated,
+               };
+            }
+         });
 
          res.status(200).json({
-            data: userConversations,
+            data: conversations,
          });
       } else {
          return res.status(401).json({

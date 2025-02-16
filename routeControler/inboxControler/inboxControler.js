@@ -28,7 +28,7 @@ const sendMessage = async (req, res, next) => {
       }
 
       await newMessage.save();
-      req.io.emit("message", newMessage);
+      req.io.emit("message", { data: newMessage });
       res.status(200).json({ data: newMessage });
    } catch (err) {
       res.status(500).json({
@@ -48,7 +48,6 @@ const getMessage = async (req, res, next) => {
 
       res.status(200).json({ data: message });
    } catch (err) {
-      console.error("Error fetching message:", err);
       res.status(500).json({ message: err.message });
    }
 };
@@ -69,4 +68,35 @@ const findConverSation = async (req, res, next) => {
    }
 };
 
-module.exports = { sendMessage, getMessage, findConverSation };
+const deleteMessage = async (req, res, next) => {
+   try {
+      const { msgConversationId, msgId } = req.query;
+
+      // Validate query parameters
+      if (!msgConversationId || !msgId) {
+         return res.status(400).json({ error: "msgConversationId and msgId are required" });
+      }
+
+      // Delete message with matching conversation_id, message _id, and sender id
+      const deleteMsg = await Message.findOneAndDelete({
+         conversation_id: msgConversationId,
+         _id: msgId,
+         "sender.id": req.user.userid,
+      });
+
+      if (!deleteMsg) {
+         return res.status(404).json({ error: "Message not found or unauthorized to delete" });
+      }
+
+      res.status(200).json({
+         success: true,
+         message: "Message deleted successfully",
+         data: deleteMsg,
+      });
+   } catch (err) {
+      console.error("Error deleting message:", err);
+      res.status(500).json({ error: "Server error", details: err.message });
+   }
+};
+
+module.exports = { sendMessage, getMessage, findConverSation, deleteMessage };
