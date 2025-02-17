@@ -88,6 +88,7 @@ const deleteMessage = async (req, res, next) => {
          return res.status(404).json({ error: "Message not found or unauthorized to delete" });
       }
 
+      req.io.to(msgConversationId).emit("messageDeleted", { msgId });
       res.status(200).json({
          success: true,
          message: "Message deleted successfully",

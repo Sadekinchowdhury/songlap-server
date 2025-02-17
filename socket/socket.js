@@ -12,6 +12,10 @@ const socketConnectionHandler = (httpServer) => {
    io.on("connection", (socket) => {
       console.log("socket is connected now_____________________>>>>>>>>>>>");
 
+      // for instant delete msg
+      socket.on("joinConversation", (conversationId) => {
+         socket.join(conversationId);
+      });
       socket.on("disconnect", () => {
          console.log("socket disconnected");
       });
