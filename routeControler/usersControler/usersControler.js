@@ -17,13 +17,23 @@ const getAllUsers = async (req, res, next) => {
 // find user for login information
 const getUser = async (req, res, next) => {
    try {
-      if (req.user) {
-         res.status(200).json({
-            user: req.user,
-         });
+      if (!req.user) {
+         return next(createHttpError(401, "User not authenticated"));
       }
+
+      // Find user from database by ID
+      const user = await Users.findById(req.user.userid);
+      if (!user) {
+         return next(createHttpError(404, "User not found"));
+      }
+
+      return res.status(200).json({
+         success: true,
+         message: "User information updated successfully",
+         user,
+      });
    } catch (err) {
-      throw createHttpError(err);
+      return next(createHttpError(500, "Internal Server Error"));
    }
 };
 
@@ -94,20 +104,16 @@ const updateUser = async (req, res, next) => {
    try {
       const id = req.params.id;
 
-      // Find the existing user
-      const existingUser = await Users.findById(id);
-      if (!existingUser) {
-         return next(createHttpError(404, "User not found"));
+      // Find and update user directly
+      const updatedUser = await Users.findByIdAndUpdate(id, { $set: req.body }, { new: true, runValidators: true });
+
+      if (!updatedUser) {
+         return res.status(404).json({ message: "User not found" });
       }
-
-      // Create a new updated object (immutability)
-      const updatedData = { ...existingUser.toObject(), ...req.body };
-
-      // Perform the update and return the new version
-      const updatedUser = await Users.findByIdAndUpdate(id, updatedData, { new: true });
-
-      res.json(updatedUser);
+      req.user.name = req.body.name;
+      res.status(200).json(updatedUser);
    } catch (err) {
+      console.log(err);
       next(err);
    }
 };

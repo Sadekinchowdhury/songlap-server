@@ -33,6 +33,7 @@ const loginControler = async (req, res, next) => {
          userid: user._id,
          name: user.name,
          email: user.email,
+         mobile: user.mobile,
          avatar: user.avatar || null,
       };
 
