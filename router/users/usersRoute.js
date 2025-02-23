@@ -19,7 +19,7 @@ usersRoute.post("/search", checklogin, searchUser);
 usersRoute.get("/", checklogin, getAllUsers);
 usersRoute.get("/:id", checklogin, getUsersById);
 usersRoute.post("/", avatarUpload, postUsers);
-usersRoute.put("/profile/update/:id", checklogin, updateUser);
+usersRoute.put("/profile/update/:id", checklogin, avatarUpload, updateUser);
 usersRoute.delete("/all", deleteAll);
 usersRoute.delete("/:id", checklogin, deleteUser);
 

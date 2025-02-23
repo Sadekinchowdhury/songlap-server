@@ -3,6 +3,8 @@ const Users = require("../../models/Users");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcryptjs");
+const Message = require("../../models/Message");
+const Conversation = require("../../models/Conversation");
 
 // Get all users
 const getAllUsers = async (req, res, next) => {
@@ -102,18 +104,77 @@ const postUsers = async (req, res, next) => {
 // Update user
 const updateUser = async (req, res, next) => {
    try {
-      const id = req.params.id;
+      const id = req.params.id; // User ID
+      const { name } = req.body;
+      const avatar = req.files?.[0]?.filename || null; // Check if a new avatar is uploaded
 
-      // Find and update user directly
-      const updatedUser = await Users.findByIdAndUpdate(id, { $set: req.body }, { new: true, runValidators: true });
+      // Update the user in the Users collection
+      const updatedUser = await Users.findByIdAndUpdate(
+         id,
+         {
+            $set: {
+               name: name,
+               avatar: avatar,
+            },
+         },
+         { new: true, runValidators: true }
+      );
 
       if (!updatedUser) {
          return res.status(404).json({ message: "User not found" });
       }
-      req.user.name = req.body.name;
-      res.status(200).json(updatedUser);
+
+      // Update all conversations where the user is the creator
+      await Conversation.updateMany(
+         { "creator.id": id },
+         {
+            $set: {
+               "creator.name": name,
+               "creator.avatar": avatar,
+            },
+         }
+      );
+
+      // Update all conversations where the user is a participant
+      await Conversation.updateMany(
+         { "participant.id": id },
+         {
+            $set: {
+               "participant.name": name,
+               "participant.avatar": avatar,
+            },
+         }
+      );
+
+      // Update all messages where the user is the sender
+      await Message.updateMany(
+         { "sender.id": id },
+         {
+            $set: {
+               "sender.name": name,
+               "sender.avatar": avatar,
+            },
+         }
+      );
+
+      // Update all messages where the user is the receiver
+      await Message.updateMany(
+         { "receiver.id": id },
+         {
+            $set: {
+               "receiver.name": name,
+               "receiver.avatar": avatar,
+            },
+         }
+      );
+
+      res.status(200).json({
+         success: true,
+         message: "User, conversations, and messages updated successfully!",
+         updatedUser,
+      });
    } catch (err) {
-      console.log(err);
+      console.log(err, "this is error___________");
       next(err);
    }
 };
