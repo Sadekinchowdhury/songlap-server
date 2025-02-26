@@ -102,70 +102,50 @@ const postUsers = async (req, res, next) => {
 };
 
 // Update user
+// Update user
 const updateUser = async (req, res, next) => {
    try {
-      const id = req.params.id; // User ID
+      const id = req.params.id;
       const { name } = req.body;
-      const avatar = req.files?.[0]?.filename || null; // Check if a new avatar is uploaded
+      const newAvatar = req.files?.[0]?.filename || null; // Check if a new avatar is uploaded
 
-      // Update the user in the Users collection
-      const updatedUser = await Users.findByIdAndUpdate(
-         id,
-         {
-            $set: {
-               name: name,
-               avatar: avatar,
-            },
-         },
-         { new: true, runValidators: true }
-      );
-
-      if (!updatedUser) {
+      // Retrieve the existing user
+      const existingUser = await Users.findById(id);
+      if (!existingUser) {
          return res.status(404).json({ message: "User not found" });
       }
 
-      // Update all conversations where the user is the creator
+      // Create an immutable updated user object using the spread operator
+      const updatedUserData = {
+         name: name || existingUser.name, // Update only if name is provided
+         avatar: newAvatar || existingUser.avatar, // Update only if avatar is provided
+      };
+
+      // Update the user in the Users collection
+      const updatedUser = await Users.findByIdAndUpdate(id, { $set: updatedUserData }, { new: true, runValidators: true });
+
+      // Update conversations where the user is the creator
       await Conversation.updateMany(
          { "creator.id": id },
-         {
-            $set: {
-               "creator.name": name,
-               "creator.avatar": avatar,
-            },
-         }
+         { $set: { "creator.name": updatedUserData.name, "creator.avatar": updatedUserData.avatar } }
       );
 
-      // Update all conversations where the user is a participant
+      // Update conversations where the user is a participant
       await Conversation.updateMany(
          { "participant.id": id },
-         {
-            $set: {
-               "participant.name": name,
-               "participant.avatar": avatar,
-            },
-         }
+         { $set: { "participant.name": updatedUserData.name, "participant.avatar": updatedUserData.avatar } }
       );
 
-      // Update all messages where the user is the sender
+      // Update messages where the user is the sender
       await Message.updateMany(
          { "sender.id": id },
-         {
-            $set: {
-               "sender.name": name,
-               "sender.avatar": avatar,
-            },
-         }
+         { $set: { "sender.name": updatedUserData.name, "sender.avatar": updatedUserData.avatar } }
       );
 
-      // Update all messages where the user is the receiver
+      // Update messages where the user is the receiver
       await Message.updateMany(
          { "receiver.id": id },
-         {
-            $set: {
-               "receiver.name": name,
-               "receiver.avatar": avatar,
-            },
-         }
+         { $set: { "receiver.name": updatedUserData.name, "receiver.avatar": updatedUserData.avatar } }
       );
 
       res.status(200).json({

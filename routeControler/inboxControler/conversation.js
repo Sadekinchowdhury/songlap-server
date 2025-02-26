@@ -1,5 +1,20 @@
 const Conversation = require("../../models/Conversation");
+const getFavouriteConversation = async (req, res, next) => {
+   try {
+      const id = req.user.userid;
 
+      const conversation = await Conversation.find({
+         $or: [{ "creator.id": id }, { "participant.id": id }],
+         "favourite.isFavourite": true,
+      });
+
+      res.json(conversation);
+   } catch (err) {
+      res.status(400).json({
+         err: err,
+      });
+   }
+};
 const getConversation = async (req, res, next) => {
    try {
       if (req.user && req.user.userid) {
@@ -17,12 +32,14 @@ const getConversation = async (req, res, next) => {
                   id: conversation._id,
                   user: conversation.participant,
                   last_updated: conversation.last_updated,
+                  conversation,
                };
             } else {
                return {
                   id: conversation._id,
                   user: conversation.creator,
                   last_updated: conversation.last_updated,
+                  conversation,
                };
             }
          });
@@ -41,5 +58,45 @@ const getConversation = async (req, res, next) => {
       });
    }
 };
+const addFavourite = async (req, res, next) => {
+   try {
+      const id = req.params.id;
+      const { isFavourite, creatorId, name, avatar } = req.body; // Extracts only the isFavourite field
+      console.log(req.body);
+      // Ensure it's a boolean
+      const isFavouriteBoolean = Boolean(isFavourite);
 
-module.exports = { getConversation };
+      console.log(isFavouriteBoolean);
+
+      const updatedConversation = await Conversation.findByIdAndUpdate(
+         id,
+         {
+            $set: {
+               "favourite.isFavourite": Boolean(isFavouriteBoolean), // Ensure it's a Boolean
+               "favourite.name": name,
+               "favourite.creatorId": creatorId,
+               "favourite.avatar": avatar,
+            },
+         },
+         { new: true, runValidators: true }
+      );
+
+      console.log(updatedConversation);
+
+      if (!updatedConversation) {
+         return res.status(404).json({ msg: "Conversation not found" });
+      }
+
+      res.status(200).json({
+         msg: "Added to favourites successfully",
+         conversation: updatedConversation,
+      });
+   } catch (err) {
+      res.status(500).json({
+         msg: "An error occurred",
+         error: err.message,
+      });
+   }
+};
+
+module.exports = { getConversation, addFavourite, getFavouriteConversation };
