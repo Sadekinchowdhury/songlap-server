@@ -13,10 +13,9 @@ const ConverSationSchema = mongoose.Schema(
          name: { type: String, required: true },
          avatar: { type: String },
       },
-
       favourite: {
-         creatorId: { type: mongoose.Types.ObjectId, required: true },
-         name: { type: String, required: true },
+         creatorId: { type: mongoose.Types.ObjectId },
+         name: { type: String },
          avatar: { type: String },
          isFavourite: {
             type: Boolean,

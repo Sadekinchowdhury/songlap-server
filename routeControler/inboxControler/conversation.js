@@ -3,12 +3,11 @@ const getFavouriteConversation = async (req, res, next) => {
    try {
       const id = req.user.userid;
 
-      const conversation = await Conversation.find({
+      const allConverSation = await Conversation.find({
          $or: [{ "creator.id": id }, { "participant.id": id }],
-         "favourite.isFavourite": true,
       });
 
-      res.json(conversation);
+      res.json(allConverSation);
    } catch (err) {
       res.status(400).json({
          err: err,
@@ -61,12 +60,9 @@ const getConversation = async (req, res, next) => {
 const addFavourite = async (req, res, next) => {
    try {
       const id = req.params.id;
-      const { isFavourite, creatorId, name, avatar } = req.body; // Extracts only the isFavourite field
-      console.log(req.body);
-      // Ensure it's a boolean
-      const isFavouriteBoolean = Boolean(isFavourite);
+      const { isFavourite, creatorId, name, avatar } = req.body;
 
-      console.log(isFavouriteBoolean);
+      const isFavouriteBoolean = Boolean(isFavourite);
 
       const updatedConversation = await Conversation.findByIdAndUpdate(
          id,
@@ -80,8 +76,6 @@ const addFavourite = async (req, res, next) => {
          },
          { new: true, runValidators: true }
       );
-
-      console.log(updatedConversation);
 
       if (!updatedConversation) {
          return res.status(404).json({ msg: "Conversation not found" });

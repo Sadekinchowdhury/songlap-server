@@ -107,7 +107,8 @@ const updateUser = async (req, res, next) => {
    try {
       const id = req.params.id;
       const { name } = req.body;
-      const newAvatar = req.files?.[0]?.filename || null; // Check if a new avatar is uploaded
+      const newAvatar = req.files?.[0]?.filename || null;
+      const previousAvatar = req.user.avatar;
 
       // Retrieve the existing user
       const existingUser = await Users.findById(id);
@@ -148,6 +149,18 @@ const updateUser = async (req, res, next) => {
          { $set: { "receiver.name": updatedUserData.name, "receiver.avatar": updatedUserData.avatar } }
       );
 
+      const rootDir = path.resolve(__dirname, "../../");
+      let url = path.join(rootDir, `/public/uploads/avatar/${req.user.avatar}`);
+      console.log(url, "this is url__________");
+      // if (updatedUser) {
+      //    fs.unlink(url, (err) => {
+      //       if (err) {
+      //          console.error("Error deleting file:", err);
+      //       } else {
+      //          console.log("File deleted successfully");
+      //       }
+      //    });
+      // }
       res.status(200).json({
          success: true,
          message: "User, conversations, and messages updated successfully!",
