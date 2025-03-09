@@ -36,6 +36,10 @@ const socketConnectionHandler = (httpServer) => {
          socket.broadcast.emit("receiveAnswer", data);
       });
 
+      socket.on("endCall", () => {
+         socket.broadcast.emit("endCall");
+      });
+
       // // Handle ICE candidate from the client
       // socket.on("sendIceCandidate", (candidate) => {
       //    console.log("📩 ICE Candidate received:", candidate);

@@ -42,19 +42,17 @@ const getUser = async (req, res, next) => {
 // search user for conversation
 const searchUser = async (req, res, next) => {
    try {
-      let { email_or_phone } = req.body;
-      email_or_phone = email_or_phone.trim().toLowerCase();
-
-      let user = await Users.find({
-         $or: [{ email: email_or_phone }, { mobile: email_or_phone }, { name: email_or_phone }],
+      let { userInput } = req.body;
+      userInput = userInput.trim().toLowerCase();
+      const searchUserResult = await Users.find({
+         $or: [{ email: userInput }, { name: userInput }, { phone: userInput }],
       });
-      if (user) {
+      if (searchUserResult) {
          res.status(200).json({
-            data: user,
+            data: searchUserResult,
          });
       }
    } catch (err) {
-      console.log(err);
       res.status(404).json({
          message: err,
       });
@@ -102,13 +100,26 @@ const postUsers = async (req, res, next) => {
 };
 
 // Update user
-// Update user
 const updateUser = async (req, res, next) => {
    try {
       const id = req.params.id;
       const { name } = req.body;
       const newAvatar = req.files?.[0]?.filename || null;
-      const previousAvatar = req.user.avatar;
+
+      // Delete previous avatar before updating new avatar
+      const previousAvatar = await Users.findById({ _id: id });
+      const rootDir = path.resolve(__dirname, "../../");
+      let url = path.join(rootDir, `/public/uploads/avatar/${previousAvatar.avatar}`);
+
+      if (previousAvatar) {
+         fs.unlink(url, (err) => {
+            if (err) {
+               console.error("Error deleting file:", err);
+            } else {
+               console.log("File deleted successfully");
+            }
+         });
+      }
 
       // Retrieve the existing user
       const existingUser = await Users.findById(id);
@@ -149,18 +160,6 @@ const updateUser = async (req, res, next) => {
          { $set: { "receiver.name": updatedUserData.name, "receiver.avatar": updatedUserData.avatar } }
       );
 
-      const rootDir = path.resolve(__dirname, "../../");
-      let url = path.join(rootDir, `/public/uploads/avatar/${req.user.avatar}`);
-      console.log(url, "this is url__________");
-      // if (updatedUser) {
-      //    fs.unlink(url, (err) => {
-      //       if (err) {
-      //          console.error("Error deleting file:", err);
-      //       } else {
-      //          console.log("File deleted successfully");
-      //       }
-      //    });
-      // }
       res.status(200).json({
          success: true,
          message: "User, conversations, and messages updated successfully!",
