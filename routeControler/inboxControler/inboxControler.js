@@ -28,6 +28,11 @@ const sendMessage = async (req, res, next) => {
       }
 
       await newMessage.save();
+
+      // Update last_updated field in the Conversation model
+      await Conversation.findByIdAndUpdate(conversation_id, {
+         last_updated: new Date(),
+      });
       req.io.emit("message", { data: newMessage });
       res.status(200).json({ data: newMessage });
    } catch (err) {

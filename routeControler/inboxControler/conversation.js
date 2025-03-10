@@ -1,4 +1,5 @@
 const Conversation = require("../../models/Conversation");
+const Message = require("../../models/Message");
 const getFavouriteConversation = async (req, res, next) => {
    try {
       const id = req.user.userid;
@@ -19,13 +20,12 @@ const getConversation = async (req, res, next) => {
       if (req.user && req.user.userid) {
          const userid = req.user.userid;
 
-         // Find conversations where user is either creator or participant
-         const userConversations = await Conversation.find({
+         const conversationsWithMessages = await Conversation.find({
             $or: [{ "creator.id": userid }, { "participant.id": userid }],
-         });
+         }).sort({ last_updated: -1 });
 
          // Map conversations to show only the opposite party
-         const conversations = userConversations.map((conversation) => {
+         const conversations = conversationsWithMessages.map((conversation) => {
             if (conversation.creator.id.toString() === userid) {
                return {
                   id: conversation._id,
@@ -42,7 +42,6 @@ const getConversation = async (req, res, next) => {
                };
             }
          });
-
          res.status(200).json({
             data: conversations,
          });
