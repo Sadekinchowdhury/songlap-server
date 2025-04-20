@@ -11,7 +11,6 @@ const socketConnectionHandler = (httpServer) => {
    });
 
    io.on("connection", (socket) => {
-      console.log("socket is connected now_____________________>>>>>>>>>>>");
 
       // for instant delete msg
       socket.on("joinConversation", (conversationId) => {
@@ -27,6 +26,17 @@ const socketConnectionHandler = (httpServer) => {
          conversationId = id;
          socket.broadcast.emit("joinconversationId", id);
       });
+      socket.on("call-request", ({ senderId, recipientId, callType, callId }) => {
+         socket.broadcast.emit("incoming-call", { senderId, recipientId, callType, callId });
+      });
+      socket.on("call-details", (data) => {
+         io.emit("callInfo", data);
+      });
+
+      socket.on("callData", (data) => {
+     
+         socket.broadcast.emit("callData", data);
+      });
 
       socket.on("sendOffer", (data) => {
          socket.broadcast.emit("receiveOffer", data);
@@ -35,17 +45,13 @@ const socketConnectionHandler = (httpServer) => {
       socket.on("sendAnswer", (data) => {
          socket.broadcast.emit("receiveAnswer", data);
       });
-
-      socket.on("endCall", () => {
-         socket.broadcast.emit("endCall");
+      socket.on("call-missed", ({ senderId, recipientId }) => {
+         socket.broadcast.emit("endCall", { senderId, recipientId });
       });
 
-      // // Handle ICE candidate from the client
-      // socket.on("sendIceCandidate", (candidate) => {
-      //    console.log("📩 ICE Candidate received:", candidate);
-      //    // Send ICE candidate to the other client (broadcast)
-      //    socket.broadcast.emit("receiveIceCandidate", candidate);
-      // });
+      socket.on("call-rejected", ({ callerId, receiverId }) => {
+         socket.broadcast.emit("endCall", { senderId: callerId, recipientId: receiverId });
+      });
 
       socket.on("disconnect", () => {
          console.log("socket disconnected");

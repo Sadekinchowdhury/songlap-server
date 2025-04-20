@@ -1,5 +1,5 @@
 const Conversation = require("../../models/Conversation");
-const Message = require("../../models/Message");
+ 
 const getFavouriteConversation = async (req, res, next) => {
    try {
       const id = req.user.userid;
@@ -42,6 +42,7 @@ const getConversation = async (req, res, next) => {
                };
             }
          });
+
          res.status(200).json({
             data: conversations,
          });

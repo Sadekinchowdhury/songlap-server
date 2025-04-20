@@ -166,7 +166,7 @@ const updateUser = async (req, res, next) => {
          updatedUser,
       });
    } catch (err) {
-      console.log(err, "this is error___________");
+    
       next(err);
    }
 };

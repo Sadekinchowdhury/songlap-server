@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const inboxRoute = require("./router/inboxRoute/inboxRoute");
 const { createServer } = require("http");
 const socketConnectionHandler = require("./socket/socket");
+const callRouter = require("./router/callRoute/callRoute");
 
 require("dotenv").config();
 
@@ -44,6 +45,9 @@ app.use("/auth", loginRoute);
 
 // inbox
 app.use("/inbox", inboxRoute);
+
+// For call
+app.use("/call", callRouter);
 
 // connect to Mongodb database
 connectDB();

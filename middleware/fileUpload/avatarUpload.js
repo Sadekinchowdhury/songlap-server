@@ -11,7 +11,6 @@ const avatarUpload = (req, res, next) => {
    const upload = uploader(avatarValue);
    upload.any()(req, res, (err) => {
       if (!err) {
-         console.log("avatar successfully added");
          next();
       } else {
          createHttpError(400, "file upload failed");

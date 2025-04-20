@@ -105,12 +105,4 @@ const deleteMessage = async (req, res, next) => {
    }
 };
 
-// const callStation = async (req, res, next) => {
-//    try {
-
-//    } catch (err) {
-//       res.join(err);
-//    }
-// };
-
 module.exports = { sendMessage, getMessage, findConverSation, deleteMessage };
